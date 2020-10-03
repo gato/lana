@@ -13,7 +13,7 @@ type Discount struct {
 
 // Promotion - interface that apply to items and generates Discounts
 type Promotion interface {
-	Apply(Items map[string]Item) ([]Discount, error)
+	Apply(Items map[string]item) ([]Discount, error)
 }
 
 // BuyXGetY - buy 2 get 1 free promotion type (BuyQuantity must be greater than GetFreeQuantity)
@@ -31,7 +31,7 @@ type BulkPercentageDiscount struct {
 }
 
 // Apply - Buy X get Y
-func (promotion BuyXGetY) Apply(Items map[string]Item) (discounts []Discount, err error) {
+func (promotion BuyXGetY) Apply(Items map[string]item) (discounts []Discount, err error) {
 	item, ok := Items[promotion.Code]
 	if !ok || item.Count < promotion.BuyQuantity {
 		// No items of type CODE or not enough of them
@@ -48,7 +48,7 @@ func (promotion BuyXGetY) Apply(Items map[string]Item) (discounts []Discount, er
 }
 
 // Apply - Buy x or more get y% off
-func (promotion BulkPercentageDiscount) Apply(Items map[string]Item) (discounts []Discount, err error) {
+func (promotion BulkPercentageDiscount) Apply(Items map[string]item) (discounts []Discount, err error) {
 	item, ok := Items[promotion.Code]
 	if !ok || item.Count < promotion.BuyQuantity {
 		// No items of type CODE or not enough of them

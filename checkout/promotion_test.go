@@ -6,8 +6,8 @@ import (
 )
 
 func TestBuy2PenGet1FreePromotion(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.PEN] = Item{Product: merchandise.GetProduct(merchandise.PEN), Count: 2}
+	items := make(map[string]item)
+	items[merchandise.PEN] = item{Product: merchandise.GetProduct(merchandise.PEN), Count: 2}
 	discount, err := PenBuy2Get1.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating PEN discounts")
@@ -27,8 +27,8 @@ func TestBuy2PenGet1FreePromotion(t *testing.T) {
 	}
 }
 func TestBuy2PenGet1FreePromotionMulti(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.PEN] = Item{Product: merchandise.GetProduct(merchandise.PEN), Count: 20}
+	items := make(map[string]item)
+	items[merchandise.PEN] = item{Product: merchandise.GetProduct(merchandise.PEN), Count: 20}
 	discount, err := PenBuy2Get1.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating PEN discounts")
@@ -48,8 +48,8 @@ func TestBuy2PenGet1FreePromotionMulti(t *testing.T) {
 	}
 }
 func TestBuy2PenGet1FreeNotApplyIfNoPens(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.TSHIRT] = Item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 2}
+	items := make(map[string]item)
+	items[merchandise.TSHIRT] = item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 2}
 	discount, err := PenBuy2Get1.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating PEN discounts")
@@ -62,8 +62,8 @@ func TestBuy2PenGet1FreeNotApplyIfNoPens(t *testing.T) {
 }
 
 func TestBuy2PenGet1FreeNotApplyIfLessPenThanNeeded(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.PEN] = Item{Product: merchandise.GetProduct(merchandise.PEN), Count: 1}
+	items := make(map[string]item)
+	items[merchandise.PEN] = item{Product: merchandise.GetProduct(merchandise.PEN), Count: 1}
 	discount, err := PenBuy2Get1.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating PEN discounts")
@@ -77,8 +77,8 @@ func TestBuy2PenGet1FreeNotApplyIfLessPenThanNeeded(t *testing.T) {
 
 func TestBuyXGetYCalculations(t *testing.T) {
 	buyXGetY := BuyXGetY{Code: merchandise.PEN, BuyQuantity: 3, GetFreeQuantity: 2}
-	items := make(map[string]Item)
-	items[merchandise.PEN] = Item{Product: merchandise.GetProduct(merchandise.PEN), Count: 3}
+	items := make(map[string]item)
+	items[merchandise.PEN] = item{Product: merchandise.GetProduct(merchandise.PEN), Count: 3}
 	discount, err := buyXGetY.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating Custom discounts")
@@ -100,8 +100,8 @@ func TestBuyXGetYCalculations(t *testing.T) {
 }
 
 func TestBuy3TshirtsGet25OffPromotion(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.TSHIRT] = Item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 3}
+	items := make(map[string]item)
+	items[merchandise.TSHIRT] = item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 3}
 	discount, err := TshirtBuy3Get25OFF.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating Tshirt discounts")
@@ -122,8 +122,8 @@ func TestBuy3TshirtsGet25OffPromotion(t *testing.T) {
 }
 
 func TestBuy3TshirtsGet25OffPromotionMulti(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.TSHIRT] = Item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 8}
+	items := make(map[string]item)
+	items[merchandise.TSHIRT] = item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 8}
 	discount, err := TshirtBuy3Get25OFF.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating Tshirt discounts")
@@ -144,8 +144,8 @@ func TestBuy3TshirtsGet25OffPromotionMulti(t *testing.T) {
 }
 
 func TestBuy3TshirtsGet25OffNotApplyIfNoTshirt(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.PEN] = Item{Product: merchandise.GetProduct(merchandise.PEN), Count: 3}
+	items := make(map[string]item)
+	items[merchandise.PEN] = item{Product: merchandise.GetProduct(merchandise.PEN), Count: 3}
 	discount, err := TshirtBuy3Get25OFF.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating Tshirt discounts")
@@ -158,8 +158,8 @@ func TestBuy3TshirtsGet25OffNotApplyIfNoTshirt(t *testing.T) {
 }
 
 func TestBuy3TshirtsGet25OffNotApplyIfLessTshirt(t *testing.T) {
-	items := make(map[string]Item)
-	items[merchandise.TSHIRT] = Item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 2}
+	items := make(map[string]item)
+	items[merchandise.TSHIRT] = item{Product: merchandise.GetProduct(merchandise.TSHIRT), Count: 2}
 	discount, err := TshirtBuy3Get25OFF.Apply(items)
 	if err != nil {
 		t.Errorf("There was an error calculating Tshirt discounts")
