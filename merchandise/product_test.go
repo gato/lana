@@ -17,7 +17,7 @@ func TestProductMapIsInitialized(t *testing.T) {
 	}
 }
 
-func TestGetProducts(t *testing.T) {
+func TestGetProduct(t *testing.T) {
 	if GetProduct(PEN) != products[PEN] {
 		t.Errorf("Lana Pen not found!")
 	}
@@ -26,5 +26,14 @@ func TestGetProducts(t *testing.T) {
 	}
 	if GetProduct(MUG) != products[MUG] {
 		t.Errorf("Lana Coffee Mug not found")
+	}
+}
+
+func TestIsValidProduct(t *testing.T) {
+	if !IsValidProduct(PEN) {
+		t.Errorf("Lana Pen should be valid")
+	}
+	if IsValidProduct("Rocket Fuel") {
+		t.Errorf("Lana Merchandise don't have Rocket Fuel")
 	}
 }

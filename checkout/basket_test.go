@@ -13,13 +13,13 @@ func TestNewBasket(t *testing.T) {
 		t.Errorf("Basket ID should not be empty")
 		return
 	}
-	count, err := basket.GetCount()
+	items, err := basket.GetItems()
 	if err != nil {
 		t.Errorf("GetCount returned an error %s", err.Error())
 		return
 	}
-	if count != 0 {
-		t.Errorf("Initial Get count should be 0 but it's %d", count)
+	if len(items) != 0 {
+		t.Errorf("Initial Get Items should have no items")
 		return
 	}
 	if len(basketMap) != 1 {
@@ -67,7 +67,7 @@ func TestGetBasketNotFound(t *testing.T) {
 func TestAddItem(t *testing.T) {
 	basketMap = make(map[string]basket)
 	b := NewBasket()
-	count, err := b.AddItem(merchandise.PEN, 2)
+	count, err := b.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
 	if err != nil {
 		t.Errorf("AddItem returned an error %s", err.Error())
 		return
@@ -76,7 +76,7 @@ func TestAddItem(t *testing.T) {
 		t.Errorf("wrong number of items expected 2 got %d", count)
 		return
 	}
-	count, err = b.AddItem(merchandise.PEN, 3)
+	count, err = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 3})
 	if err != nil {
 		t.Errorf("AddItem returned an error %s", err.Error())
 		return
@@ -90,7 +90,7 @@ func TestAddItem(t *testing.T) {
 func TestMixedAddItem(t *testing.T) {
 	basketMap = make(map[string]basket)
 	b := NewBasket()
-	count, err := b.AddItem(merchandise.PEN, 2)
+	count, err := b.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
 	if err != nil {
 		t.Errorf("AddItem returned an error %s", err.Error())
 		return
@@ -99,7 +99,7 @@ func TestMixedAddItem(t *testing.T) {
 		t.Errorf("wrong number of items expected 2 got %d", count)
 		return
 	}
-	count, err = b.AddItem(merchandise.TSHIRT, 3)
+	count, err = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 3})
 	if err != nil {
 		t.Errorf("AddItem returned an error %s", err.Error())
 		return
@@ -113,7 +113,7 @@ func TestMixedAddItem(t *testing.T) {
 func TestAddItemError(t *testing.T) {
 	basketMap = make(map[string]basket)
 	b := NewBasket()
-	count, err := b.AddItem(merchandise.PEN, 2)
+	count, err := b.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
 	if err != nil {
 		t.Errorf("AddItem returned an error %s", err.Error())
 		return
@@ -124,54 +124,79 @@ func TestAddItemError(t *testing.T) {
 	}
 	// Clear merchandise map to force an error
 	basketMap = make(map[string]basket)
-	_, err = b.AddItem(merchandise.PEN, 3)
+	_, err = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 3})
 	if err == nil {
 		t.Errorf("An error was expected")
 		return
 	}
 }
 
-func TestGetCount(t *testing.T) {
+func findItem(items []ProductItem, code string) (item ProductItem, err error) {
+	for _, i := range items {
+		if i.Product == code {
+			item = i
+			return
+		}
+	}
+	return
+}
+
+func TestGetItems(t *testing.T) {
 	basketMap = make(map[string]basket)
 	b := NewBasket()
-	_, _ = b.AddItem(merchandise.PEN, 2)
-	count, err := b.GetCount()
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
+	items, err := b.GetItems()
 	if err != nil {
-		t.Errorf("GetCount returned an error %s", err.Error())
+		t.Errorf("GetItems returned an error %s", err.Error())
 		return
 	}
-	if count != 2 {
-		t.Errorf("wrong number of items expected 2 got %d", count)
+	if len(items) != 1 {
+		t.Errorf("wrong number of items expected 1 got %d", len(items))
 		return
 	}
-	_, _ = b.AddItem(merchandise.PEN, 3)
-	count, err = b.GetCount()
+	_item, err := findItem(items, merchandise.PEN)
 	if err != nil {
-		t.Errorf("GetCount returned an error %s", err.Error())
+		t.Errorf("findItem returned an error %s", err.Error())
 		return
 	}
-	if count != 5 {
-		t.Errorf("wrong number of items expected 5 got %d", count)
+	if _item.Count != 2 {
+		t.Errorf("wrong number of items expected 2 got %d", _item.Count)
+		return
+	}
+
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 3})
+	items, err = b.GetItems()
+	if len(items) != 1 {
+		t.Errorf("wrong number of items expected 1 got %d", len(items))
+		return
+	}
+	_item, err = findItem(items, merchandise.PEN)
+	if err != nil {
+		t.Errorf("findItem returned an error %s", err.Error())
+		return
+	}
+	if _item.Count != 5 {
+		t.Errorf("wrong number of items expected 5 got %d", _item.Count)
 		return
 	}
 }
 
-func TestGetCountError(t *testing.T) {
+func TestGetItemsError(t *testing.T) {
 	basketMap = make(map[string]basket)
 	b := NewBasket()
-	_, _ = b.AddItem(merchandise.PEN, 2)
-	count, err := b.GetCount()
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
+	items, err := b.GetItems()
 	if err != nil {
 		t.Errorf("GetCount returned an error %s", err.Error())
 		return
 	}
-	if count != 2 {
-		t.Errorf("wrong number of items expected 2 got %d", count)
+	if len(items) != 1 {
+		t.Errorf("wrong number of items expected 1 got %d", len(items))
 		return
 	}
 	// Clear merchandise map to force an error
 	basketMap = make(map[string]basket)
-	_, err = b.GetCount()
+	_, err = b.GetItems()
 	if err == nil {
 		t.Errorf("An error was expected")
 		return
@@ -199,14 +224,14 @@ func TestListBaskets(t *testing.T) {
 		return
 	}
 	b1 := NewBasket()
-	_, _ = b1.AddItem(merchandise.PEN, 2)
+	_, _ = b1.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
 	b2 := NewBasket()
-	_, _ = b2.AddItem(merchandise.TSHIRT, 3)
+	_, _ = b2.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 3})
 	if err != nil {
 		t.Errorf("ListBaskets returned an error %s", err.Error())
 		return
 	}
-	baskets, err = ListBaskets()
+	baskets, _ = ListBaskets()
 	if len(baskets) != 2 {
 		t.Errorf("wrong number of baskets expected 2 got %d", len(baskets))
 		return
@@ -228,9 +253,9 @@ func TestGetTotal(t *testing.T) {
 	// Items: PEN, TSHIRT, MUG
 	// Total: 32.50€
 	b := NewBasket()
-	_, _ = b.AddItem(merchandise.PEN, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.MUG, 1)
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.MUG, Count: 1})
 	total, err := b.GetTotal()
 	if err != nil {
 		t.Errorf("GetTotal returned an error %s", err.Error())
@@ -244,9 +269,9 @@ func TestGetTotal(t *testing.T) {
 	// Items: PEN, TSHIRT, PEN
 	// Total: 25.00€
 	b = NewBasket()
-	_, _ = b.AddItem(merchandise.PEN, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.PEN, 1)
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
 	total, _ = b.GetTotal()
 	expected = 25
 	if total != expected {
@@ -257,11 +282,11 @@ func TestGetTotal(t *testing.T) {
 	// Items: TSHIRT, TSHIRT, TSHIRT, PEN, TSHIRT
 	// Total: 65.00€
 	b = NewBasket()
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.PEN, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
 	total, _ = b.GetTotal()
 	expected = 65
 	if total != expected {
@@ -272,13 +297,13 @@ func TestGetTotal(t *testing.T) {
 	// Items: PEN, TSHIRT, PEN, PEN, MUG, TSHIRT, TSHIRT
 	// Total: 62.50€
 	b = NewBasket()
-	_, _ = b.AddItem(merchandise.PEN, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.PEN, 1)
-	_, _ = b.AddItem(merchandise.PEN, 1)
-	_, _ = b.AddItem(merchandise.MUG, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
-	_, _ = b.AddItem(merchandise.TSHIRT, 1)
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.MUG, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
+	_, _ = b.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 1})
 	total, _ = b.GetTotal()
 	expected = 62.50
 	if total != expected {
@@ -289,7 +314,7 @@ func TestGetTotal(t *testing.T) {
 
 func TestGetTotalBasketNotFoundError(t *testing.T) {
 	b := NewBasket()
-	_, _ = b.AddItem(merchandise.PEN, 1)
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
 	// force error
 	basketMap = make(map[string]basket)
 	_, err := b.GetTotal()
@@ -323,13 +348,55 @@ func TestGetTotalPromotionError(t *testing.T) {
 	internalBasket.promotions = append(basketMap[b.GetID()].promotions, FailingPromo{})
 	// replace basket
 	basketMap[b.GetID()] = internalBasket
-	_, _ = b.AddItem(merchandise.PEN, 1)
+	_, _ = b.AddItem(ProductItem{Product: merchandise.PEN, Count: 1})
 	_, err := b.GetTotal()
 	if err == nil {
 		t.Errorf("GetBasket should have returned an error")
 		return
 	}
 	expected := "some random error"
+	if err.Error() != expected {
+		t.Errorf("Wrong error expected %s but got %s", expected, err.Error())
+	}
+}
+
+func TestDeleteBasket(t *testing.T) {
+	basketMap = make(map[string]basket)
+	basket := NewBasket()
+	baskets, _ := ListBaskets()
+	if len(baskets) != 1 {
+		t.Errorf("wrong number of baskets expected 1 got %d", len(baskets))
+		return
+	}
+	err := DeleteBasket(basket.GetID())
+	if err != nil {
+		t.Errorf("DeleteBasket returned an error %s", err.Error())
+		return
+	}
+	baskets, _ = ListBaskets()
+	if len(baskets) != 0 {
+		t.Errorf("wrong number of baskets expected 0 got %d", len(baskets))
+		return
+	}
+	_, err = GetBasket(basket.GetID())
+	if err == nil {
+		t.Errorf("GetBasket should have returned an error")
+		return
+	}
+	expected := "Basket not found"
+	if err.Error() != expected {
+		t.Errorf("Wrong error expected %s but got %s", expected, err.Error())
+	}
+}
+
+func TestDeleteBasketNotFoundError(t *testing.T) {
+	basketMap = make(map[string]basket)
+	err := DeleteBasket("1234")
+	if err == nil {
+		t.Errorf("DeleteBasket should have returned an error")
+		return
+	}
+	expected := "Basket not found"
 	if err.Error() != expected {
 		t.Errorf("Wrong error expected %s but got %s", expected, err.Error())
 	}

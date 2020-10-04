@@ -31,3 +31,9 @@ var products = map[string]Product{
 func GetProduct(prod string) Product {
 	return products[prod]
 }
+
+// IsValidProduct - dummy function to validate product existance
+func IsValidProduct(prod string) bool {
+	_, ok := products[prod]
+	return ok
+}

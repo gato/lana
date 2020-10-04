@@ -12,6 +12,12 @@ type item struct {
 	Count   int64
 }
 
+// ProductItem - DTO for basket entries
+type ProductItem struct {
+	Product string
+	Count   int64
+}
+
 type basket struct {
 	id         string
 	items      map[string]item
@@ -19,14 +25,16 @@ type basket struct {
 	lock       *sync.RWMutex
 }
 
-func (basket *basket) getCount() int64 {
-	var count int64 = 0
+func (basket *basket) getItems() []ProductItem {
 	basket.lock.RLock()
 	defer basket.lock.RUnlock()
+	items := make([]ProductItem, len(basket.items))
+	i := 0
 	for _, item := range basket.items {
-		count += item.Count
+		items[i] = ProductItem{Product: item.Product.Code, Count: item.Count}
+		i++
 	}
-	return count
+	return items
 }
 
 // Mutex to syncronize accest to fake datastore (a simple map)
@@ -39,8 +47,8 @@ var basketMap = make(map[string]basket)
 // internal implementation
 type Basket interface {
 	GetID() string
-	GetCount() (int64, error)
-	AddItem(product string, amount int64) (int64, error)
+	GetItems() ([]ProductItem, error)
+	AddItem(ProductItem) (int64, error)
 	GetTotal() (float64, error)
 }
 
@@ -73,19 +81,19 @@ func (b BasketWrapper) GetID() string {
 	return b.id
 }
 
-// GetCount - Get Basket's item count
-func (b BasketWrapper) GetCount() (int64, error) {
+// GetItems - Get Basket's item count
+func (b BasketWrapper) GetItems() ([]ProductItem, error) {
 	basket, ok := getBasket(b.id)
 	if !ok {
-		return 0, fmt.Errorf("Basket not found")
+		return nil, fmt.Errorf("Basket not found")
 	}
-	return basket.getCount(), nil
+	return basket.getItems(), nil
 }
 
 // AddItem - add "amount" items to basket
 // if product exist it will add the amount
 // if not will set
-func (b BasketWrapper) AddItem(product string, amount int64) (int64, error) {
+func (b BasketWrapper) AddItem(_item ProductItem) (int64, error) {
 	basket, ok := getBasket(b.id)
 	if !ok {
 		return 0, fmt.Errorf("Basket not found")
@@ -93,12 +101,12 @@ func (b BasketWrapper) AddItem(product string, amount int64) (int64, error) {
 	// ADD item
 	basket.lock.Lock()
 	defer basket.lock.Unlock()
-	i, ok := basket.items[product]
+	i, ok := basket.items[_item.Product]
 	if !ok {
-		i = item{Product: merchandise.GetProduct(product), Count: 0}
+		i = item{Product: merchandise.GetProduct(_item.Product), Count: 0}
 	}
-	i.Count = i.Count + amount
-	basket.items[product] = i
+	i.Count = i.Count + _item.Count
+	basket.items[_item.Product] = i
 
 	return i.Count, nil
 }
@@ -160,4 +168,16 @@ func ListBaskets() ([]Basket, error) {
 		list = append(list, BasketWrapper{id: basket.id})
 	}
 	return list, nil
+}
+
+// DeleteBasket - Remove a Basket from storage
+func DeleteBasket(id string) error {
+	basketLock.RLock()
+	defer basketLock.RUnlock()
+	_, ok := basketMap[id]
+	if !ok {
+		return fmt.Errorf("Basket not found")
+	}
+	delete(basketMap, id)
+	return nil
 }
