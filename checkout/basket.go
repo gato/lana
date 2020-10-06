@@ -14,8 +14,8 @@ type item struct {
 
 // ProductItem - DTO for basket entries
 type ProductItem struct {
-	Product string
-	Count   int64
+	Product string `json:"product"`
+	Count   int64  `json:"count"`
 }
 
 type basket struct {
@@ -160,14 +160,14 @@ func GetBasket(id string) (Basket, error) {
 }
 
 // ListBaskets - Get Baskets ids with item count
-func ListBaskets() ([]Basket, error) {
+func ListBaskets() []Basket {
 	basketLock.RLock()
 	defer basketLock.RUnlock()
 	list := make([]Basket, 0)
 	for _, basket := range basketMap {
 		list = append(list, BasketWrapper{id: basket.id})
 	}
-	return list, nil
+	return list
 }
 
 // DeleteBasket - Remove a Basket from storage

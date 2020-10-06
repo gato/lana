@@ -214,11 +214,7 @@ func findBasket(baskets []Basket, id string) (Basket, error) {
 
 func TestListBaskets(t *testing.T) {
 	basketMap = make(map[string]basket)
-	baskets, err := ListBaskets()
-	if err != nil {
-		t.Errorf("ListBaskets returned an error %s", err.Error())
-		return
-	}
+	baskets := ListBaskets()
 	if len(baskets) != 0 {
 		t.Errorf("wrong number of baskets expected 0 got %d", len(baskets))
 		return
@@ -227,17 +223,14 @@ func TestListBaskets(t *testing.T) {
 	_, _ = b1.AddItem(ProductItem{Product: merchandise.PEN, Count: 2})
 	b2 := NewBasket()
 	_, _ = b2.AddItem(ProductItem{Product: merchandise.TSHIRT, Count: 3})
-	if err != nil {
-		t.Errorf("ListBaskets returned an error %s", err.Error())
-		return
-	}
-	baskets, _ = ListBaskets()
+
+	baskets = ListBaskets()
 	if len(baskets) != 2 {
 		t.Errorf("wrong number of baskets expected 2 got %d", len(baskets))
 		return
 	}
 	// Validate items returned are the ones that were added
-	_, err = findBasket(baskets, b1.GetID())
+	_, err := findBasket(baskets, b1.GetID())
 	if err != nil {
 		t.Errorf("first basket not found")
 		return
@@ -363,7 +356,7 @@ func TestGetTotalPromotionError(t *testing.T) {
 func TestDeleteBasket(t *testing.T) {
 	basketMap = make(map[string]basket)
 	basket := NewBasket()
-	baskets, _ := ListBaskets()
+	baskets := ListBaskets()
 	if len(baskets) != 1 {
 		t.Errorf("wrong number of baskets expected 1 got %d", len(baskets))
 		return
@@ -373,7 +366,7 @@ func TestDeleteBasket(t *testing.T) {
 		t.Errorf("DeleteBasket returned an error %s", err.Error())
 		return
 	}
-	baskets, _ = ListBaskets()
+	baskets = ListBaskets()
 	if len(baskets) != 0 {
 		t.Errorf("wrong number of baskets expected 0 got %d", len(baskets))
 		return

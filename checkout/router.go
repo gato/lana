@@ -19,6 +19,10 @@ func AddRoutes(rg *gin.RouterGroup) {
 		HandleCreateEmtpyBasket(c)
 	})
 
+	r.GET("/", func(c *gin.Context) {
+		HandleGetAllBaskets(c)
+	})
+
 	r.DELETE("/:id", func(c *gin.Context) {
 		id := c.Params.ByName("id")
 		HandleDeleteBasket(c, id)

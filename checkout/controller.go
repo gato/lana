@@ -54,6 +54,17 @@ func HandleDeleteBasket(c *gin.Context, id string) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// HandleGetAllBaskets - return all baskets in server
+// no pagination so use with caution!
+func HandleGetAllBaskets(c *gin.Context) {
+	baskets := ListBaskets()
+	ids := make([]string, len(baskets))
+	for i, v := range baskets {
+		ids[i] = v.GetID()
+	}
+	c.JSON(http.StatusOK, ids)
+}
+
 // HandleAddProduct - http handler to delete a basket
 func HandleAddProduct(c *gin.Context, id string, _item ProductItem) {
 	// Validate product

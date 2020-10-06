@@ -65,7 +65,7 @@ func TestHandleCreateEmtpyBasket(t *testing.T) {
 		return
 	}
 
-	baskets, _ := ListBaskets()
+	baskets := ListBaskets()
 	if len(baskets) != 1 {
 		t.Errorf("HandleCreateEmtpyBasket haven't created a basket")
 		return
@@ -190,6 +190,27 @@ func TestHandleAddProductErrorBadPayload(t *testing.T) {
 	expected := http.StatusBadRequest
 	if w.Code != expected {
 		t.Errorf("HandleAddProduct wrong http status expected %d got %d", expected, w.Code)
+		return
+	}
+}
+
+func TestHandleGetAllBaskets(t *testing.T) {
+
+	basketMap = make(map[string]basket)
+	b1 := NewBasket()
+	r := getRouter()
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/v1/basket/", nil)
+	r.ServeHTTP(w, req)
+
+	expected := http.StatusOK
+	if w.Code != expected {
+		t.Errorf("HandleGetAllBaskets wrong http status expected %d got %d", expected, w.Code)
+		return
+	}
+	expectedBody := "[\"" + b1.GetID() + "\"]"
+	if w.Body.String() != expectedBody {
+		t.Errorf("HandleDeleteBasket wrong response body expected %s got %s", expectedBody, w.Body.String())
 		return
 	}
 }
