@@ -17,5 +17,6 @@ func main() {
 	apiv1 := r.Group("/api/v1/")
 	checkout.AddRoutes(apiv1)
 	runPort := fmt.Sprintf(":%d", *port)
+	fmt.Printf("Api listening on port %d\n", *port)
 	r.Run(runPort)
 }
